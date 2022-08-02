@@ -18,13 +18,14 @@ class Web(HttpUser):
     def load(self):
 
         # Setup username and password(both are generated)
-        username = "user" + str(randint(0, 1000000))
+        username = f"user{str(randint(0, 1000000))}"
         password = str(randint(0, 10000000))
         base64string = (
-            base64.encodebytes(bytes(("%s:%s" % (username, password)), "utf-8"))
+            base64.encodebytes(bytes(f"{username}:{password}", "utf-8"))
             .decode()
             .strip()
         )
+
 
         # Start by visiting MuShop
         self.client.get("/")
@@ -44,8 +45,9 @@ class Web(HttpUser):
 
         # login as the newly registered user
         self.client.post(
-            "/api/login", headers={"Authorization": "Basic %s" % base64string}
+            "/api/login", headers={"Authorization": f"Basic {base64string}"}
         )
+
 
         # update  profile with shipping address and payment info
         self.client.post(
@@ -74,7 +76,7 @@ class Web(HttpUser):
         item_id = category_item["id"]
 
         # Visit product page for the chosen product
-        self.client.get("/product.html?id={}".format(item_id))
+        self.client.get(f"/product.html?id={item_id}")
 
         # add item to cart
         self.client.post("/api/cart", json={"id": item_id, "quantity": 1})

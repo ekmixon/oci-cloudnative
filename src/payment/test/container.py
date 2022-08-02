@@ -18,11 +18,17 @@ class PaymentContainerTest(unittest.TestCase):
         self.ip = ""
         
     def setUp(self):
-        command = ['docker', 'run',
-                   '-d',
-                   '--name', PaymentContainerTest.container_name,
-                   '-h', 'payment',
-                   'mushop/payment:' + self.TAG]
+        command = [
+            'docker',
+            'run',
+            '-d',
+            '--name',
+            PaymentContainerTest.container_name,
+            '-h',
+            'payment',
+            f'mushop/payment:{self.TAG}',
+        ]
+
         Docker().execute(command)
         self.ip = Docker().get_container_ip(PaymentContainerTest.container_name)
 
@@ -31,17 +37,20 @@ class PaymentContainerTest(unittest.TestCase):
 
     def test_api_validated(self):
         limit = 30
-        while Api().noResponse('http://' + self.ip + ':80/payments/'):
+        while Api().noResponse(f'http://{self.ip}:80/payments/'):
             if limit == 0:
                 self.fail("Couldn't get the API running")
             limit = limit - 1
             sleep(1)
-        
-        out = Dredd().test_against_endpoint("payment",
-                                            'http://' + self.ip + ':80/',
-                                            links=[self.container_name],
-                                            dump_streams=True)
-        
+
+        out = Dredd().test_against_endpoint(
+            "payment",
+            f'http://{self.ip}:80/',
+            links=[self.container_name],
+            dump_streams=True,
+        )
+
+
         self.assertGreater(out.find("0 failing"), -1)
         self.assertGreater(out.find("0 errors"), -1)
         

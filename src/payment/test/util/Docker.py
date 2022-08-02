@@ -15,8 +15,8 @@ class Docker:
             return False
 
     def random_container_name(self, prefix):
-        retstr = prefix + '-'
-        for i in range(5):
+        retstr = f'{prefix}-'
+        for _ in range(5):
             retstr += chr(int(round(random() * (122-97) + 97)))
         return retstr
 
@@ -47,5 +47,5 @@ class Docker:
         status = re.sub(r'[^a-z]*', '', self.execute(command))
         while status != "running":
             time.sleep(1)
-            print("Status: " + status + ". Waiting for container to start.")
+            print(f"Status: {status}. Waiting for container to start.")
             status = re.sub(r'[^a-z]*', '', self.execute(command))
